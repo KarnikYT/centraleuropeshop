@@ -153,13 +153,9 @@
         <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl relative">
             <button onclick="closeModal('topUpModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
             <h3 class="text-xl font-bold mb-2 flex items-center gap-2 text-amber-500"><i class="fa-solid fa-coins"></i> Dokoupit Robuxy</h3>
-            <p class="text-xs text-slate-500 mb-4">Simulované dobíjení Robuxů pro váš testovací účet.</p>
+            <p class="text-xs text-slate-500 mb-4">Dobíjení reálných Robuxů pro váš účet.</p>
             
             <div class="space-y-2 mb-4">
-                <button onclick="addRobux(20)" class="w-full flex justify-between items-center bg-slate-100 dark:bg-slate-700 hover:bg-amber-50 dark:hover:bg-slate-600 p-3 rounded-xl font-medium text-sm transition">
-                    <span>+20 Robuxů</span>
-                    <span class="text-amber-600 font-bold">Zdarma (Demo)</span>
-                </button>
                 <button onclick="addRobux(50)" class="w-full flex justify-between items-center bg-slate-100 dark:bg-slate-700 hover:bg-amber-50 dark:hover:bg-slate-600 p-3 rounded-xl font-medium text-sm transition">
                     <span>+50 Robuxů</span>
                     <span class="text-amber-600 font-bold">15 Kč</span>
@@ -167,6 +163,10 @@
                 <button onclick="addRobux(100)" class="w-full flex justify-between items-center bg-slate-100 dark:bg-slate-700 hover:bg-amber-50 dark:hover:bg-slate-600 p-3 rounded-xl font-medium text-sm transition">
                     <span>+100 Robuxů</span>
                     <span class="text-amber-600 font-bold">28 Kč</span>
+                </button>
+                <button onclick="addRobux(500)" class="w-full flex justify-between items-center bg-slate-100 dark:bg-slate-700 hover:bg-amber-50 dark:hover:bg-slate-600 p-3 rounded-xl font-medium text-sm transition">
+                    <span>+500 Robuxů</span>
+                    <span class="text-amber-600 font-bold">130 Kč</span>
                 </button>
             </div>
         </div>
@@ -190,7 +190,7 @@
             </div>
 
             <button onclick="submitOrder()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-lg">
-                <i class="fa-brands fa-discord"></i> Odeslat objednávku na Discord
+                <i class="fa-brands fa-discord"></i> Odeslat objednávku do fóra
             </button>
         </div>
     </div>
@@ -202,7 +202,6 @@
 
         // Produkty (Všichni prodejci)
         const products = [
-            // DAVID
             {
                 id: "d1",
                 seller: "DAVID",
@@ -239,8 +238,6 @@
                 ],
                 rules: "Model je bez povolení prodávající osoby jakkoliv upravovat, barvit, scriptovat aj.!"
             },
-
-            // FALAX
             {
                 id: "f1",
                 seller: "FALAX",
@@ -345,8 +342,6 @@
                 desc: "Obsahuje 9 detailních modelů z Blenderu.",
                 rules: "Úpravy povoleny, zachovat README."
             },
-
-            // VTK
             {
                 id: "v1",
                 seller: "VTK",
@@ -356,8 +351,6 @@
                 desc: "Označník, přístřešek, lavička, koš. Vytvořeno v Blockbench.",
                 rules: "Zákaz úprav bez souhlasu!"
             },
-
-            // SMATLINA
             {
                 id: "s1",
                 seller: "SMATLINA",
@@ -422,18 +415,15 @@
         let currentSellerFilter = 'ALL';
         let selectedProduct = null;
 
-        // Inicializace
         window.onload = function() {
             updateUserUI();
             renderProducts();
         };
 
-        // Přepínání motivu (Dark/Light)
         function toggleTheme() {
             document.documentElement.classList.toggle('dark');
         }
 
-        // Správa uživatele & Robuxů
         function loginUser() {
             const input = document.getElementById('robloxUsernameInput').value.trim();
             if(input) {
@@ -459,10 +449,9 @@
             localStorage.setItem('ce_roblox_robux', userRobux);
             updateUserUI();
             closeModal('topUpModal');
-            alert(`Úspěšně přičteno +${amount} R$! Námi zadaný stav: ${userRobux} R$`);
+            alert(`Úspěšně přičteno +${amount} R$! Aktuální zůstatek: ${userRobux} R$`);
         }
 
-        // Filtrování a zobrazení produktů
         function setSellerFilter(seller) {
             currentSellerFilter = seller;
             document.querySelectorAll('.seller-btn').forEach(btn => {
@@ -518,7 +507,6 @@
             });
         }
 
-        // Modal Produkty
         function openProductModal(id) {
             selectedProduct = products.find(p => p.id === id);
             if(!selectedProduct) return;
@@ -581,7 +569,6 @@
             let extraPrice = 0;
             let extraDetails = [];
 
-            // Načtení voleb
             document.querySelectorAll('.product-option:checked').forEach(opt => {
                 extraPrice += parseInt(opt.dataset.price);
                 extraDetails.push(opt.dataset.name);
@@ -649,7 +636,7 @@
             openCartModal();
         }
 
-        // Odeslání Objednávky na Discord Webhook
+        // Odeslání Objednávky přímo do fóra jako nové vlákno
         async function submitOrder() {
             if(!currentUser) {
                 alert('Před odesláním se musíte přihlásit Roblox jménem!');
@@ -670,12 +657,10 @@
                 return;
             }
 
-            // Odečtení Robuxů
             userRobux -= total;
             localStorage.setItem('ce_roblox_robux', userRobux);
             updateUserUI();
 
-            // Sestavení zprávy na Discord
             let orderFields = cart.map(item => ({
                 name: `${item.product.title} (${item.product.seller})`,
                 value: `Cena: **${item.finalPrice} R$**\nDetaily: ${item.details || 'Bez úprav'}`,
@@ -687,7 +672,7 @@
                 avatar_url: "https://upload.wikimedia.org/wikipedia/commons/3/3a/Roblox_player_icon.png",
                 embeds: [{
                     title: "🛒 Nová Objednávka",
-                    color: 15016233, // Červená barva
+                    color: 15016233,
                     fields: [
                         { name: "Kupující (Roblox)", value: currentUser, inline: true },
                         { name: "Celková Cena", value: `${total} R$`, inline: true },
@@ -698,20 +683,24 @@
                 }]
             };
 
+            // Přidání parametru ?thread_name pro vytvoření nového příspěvku ve fóru
+            const forumThreadName = `Objednávka - ${currentUser} (${new Date().toLocaleDateString()})`;
+            const webhookUrlForForum = DISCORD_WEBHOOK_URL + "?thread_name=" + encodeURIComponent(forumThreadName);
+
             try {
-                const response = await fetch(DISCORD_WEBHOOK_URL, {
+                const response = await fetch(webhookUrlForForum, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
                 if(response.ok) {
-                    alert('Objednávka byla úspěšně odeslána na Discord!');
+                    alert('Objednávka byla úspěšně odeslána do fóra na Discordu!');
                     cart = [];
                     updateCartBadge();
                     closeModal('cartModal');
                 } else {
-                    alert('Chyba při odesílání na Discord. Zkontrolujte připojení.');
+                    alert('Chyba při odesílání. Ujistěte se, že kanál je typu Fórum nebo Textový.');
                 }
             } catch(e) {
                 console.error(e);
@@ -719,7 +708,6 @@
             }
         }
 
-        // Pomocné funkce pro modaly
         function openLoginModal() { document.getElementById('loginModal').classList.remove('hidden'); }
         function openTopUpModal() { document.getElementById('topUpModal').classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
