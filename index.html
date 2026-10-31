@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CentralEurope Roblox Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        roblox: {
+                            red: '#e52229',
+                            darkRed: '#b81218',
+                            pinkBg: '#fff0f3',
+                            pinkText: '#d63384'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-200 min-h-screen flex flex-col pb-24 md:pb-8">
+
+    <!-- Horní lišta / Header -->
+    <header class="bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-30 transition-colors">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                    CE
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">CentralEurope Shop</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Roblox Modely & Doplňky</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <!-- Tlačítko pro změnu motivu -->
+                <button id="themeToggle" onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:block text-amber-400"></i>
+                </button>
+
+                <!-- Uživatelské menu -->
+                <button onclick="openLoginModal()" id="userBtn" class="flex items-center space-x-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 px-3 py-2 rounded-full transition">
+                    <i class="fa-solid fa-user text-red-600"></i>
+                    <span id="userName" class="text-sm font-medium">Přihlásit</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hlavní kontejner -->
+    <main class="max-w-4xl mx-auto px-4 py-6 flex-1 w-full">
+
+        <!-- Banner / Vítací karta -->
+        <div class="bg-gradient-to-r from-red-600 to-rose-700 rounded-3xl p-6 text-white shadow-lg mb-6 relative overflow-hidden">
+            <div class="relative z-10">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold">Roblox Obchod</span>
+                    <div class="flex items-center space-x-1 bg-black/30 backdrop-blur-md px-3 py-1 rounded-full text-xs">
+                        <i class="fa-solid fa-coins text-amber-300"></i>
+                        <span id="userRobux">0 R$</span>
+                        <button onclick="openTopUpModal()" class="ml-2 underline text-amber-200 hover:text-white font-bold">+ Dokoupit</button>
+                    </div>
+                </div>
+                <h2 class="text-2xl font-bold mb-1">CentralEurope Store 🛒</h2>
+                <p class="text-white/80 text-sm mb-4">Prohlížejte modely, konfigurujte barvy a nakupujte bezpečně za Robuxy.</p>
+
+                <!-- Vyhledávání -->
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Vyhledat model nebo doplněk..." class="w-full pl-11 pr-4 py-3 rounded-2xl bg-white text-slate-800 placeholder-slate-400 text-sm focus:outline-none shadow-inner">
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtry (Autor & Kategorie) -->
+        <div class="mb-6 space-y-3">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-sm text-slate-500 uppercase tracking-wider">Filtrovat podle autora</h3>
+                <span id="itemCount" class="text-xs bg-slate-200 dark:bg-slate-700 px-2 py-1 rounded-full font-semibold">20 produktů</span>
+            </div>
+            
+            <div class="flex space-x-2 overflow-x-auto no-scrollbar pb-1">
+                <button onclick="setSellerFilter('ALL')" class="seller-btn active bg-red-600 text-white px-4 py-2 rounded-2xl text-sm font-medium shrink-0 transition" data-seller="ALL">Všichni</button>
+                <button onclick="setSellerFilter('DAVID')" class="seller-btn bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-2xl text-sm font-medium shrink-0 transition border border-slate-200 dark:border-slate-700" data-seller="DAVID">DAVID</button>
+                <button onclick="setSellerFilter('FALAX')" class="seller-btn bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-2xl text-sm font-medium shrink-0 transition border border-slate-200 dark:border-slate-700" data-seller="FALAX">FALAX</button>
+                <button onclick="setSellerFilter('VTK')" class="seller-btn bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-2xl text-sm font-medium shrink-0 transition border border-slate-200 dark:border-slate-700" data-seller="VTK">VTK</button>
+                <button onclick="setSellerFilter('SMATLINA')" class="seller-btn bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-2xl text-sm font-medium shrink-0 transition border border-slate-200 dark:border-slate-700" data-seller="SMATLINA">SMATLINA</button>
+            </div>
+        </div>
+
+        <!-- Mřížka produktů -->
+        <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Dynamicky generováno v JS -->
+        </div>
+
+    </main>
+
+    <!-- Spodní Navigace pro Mobil -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 z-20 px-6 py-2">
+        <div class="flex justify-around items-center">
+            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center text-red-600">
+                <i class="fa-solid fa-store text-lg"></i>
+                <span class="text-[10px] font-medium mt-1">Obchod</span>
+            </button>
+            <button onclick="openCartModal()" class="flex flex-col items-center text-slate-500 dark:text-slate-400 relative">
+                <i class="fa-solid fa-cart-shopping text-lg"></i>
+                <span class="text-[10px] font-medium mt-1">Košík</span>
+                <span id="cartBadge" class="hidden absolute -top-1 -right-2 bg-red-600 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+            </button>
+            <button onclick="openTopUpModal()" class="flex flex-col items-center text-slate-500 dark:text-slate-400">
+                <i class="fa-solid fa-coins text-lg"></i>
+                <span class="text-[10px] font-medium mt-1">Robuxy</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Modal: Login -->
+    <div id="loginModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl relative">
+            <button onclick="closeModal('loginModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-user text-red-600"></i> Roblox Přihlášení</h3>
+            <p class="text-xs text-slate-500 mb-4">Zadejte vaše Roblox uživatelské jméno pro ověření účtu a nákup.</p>
+            <input type="text" id="robloxUsernameInput" placeholder="Vaše Roblox Jméno" class="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-700 border-none mb-4 text-sm focus:ring-2 focus:ring-red-600">
+            <button onclick="loginUser()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition">Přihlásit se</button>
+        </div>
+    </div>
+
+    <!-- Modal: Detail a Konfigurace produktu -->
+    <div id="productModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('productModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            
+            <div id="modalProductContent">
+                <!-- Dynamicky vloženo z JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Dokoupení Robuxů (Top-up) -->
+    <div id="topUpModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl relative">
+            <button onclick="closeModal('topUpModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h3 class="text-xl font-bold mb-2 flex items-center gap-2 text-amber-500"><i class="fa-solid fa-coins"></i> Dokoupit Robuxy</h3>
+            <p class="text-xs text-slate-500 mb-4">Simulované dobíjení Robuxů pro váš testovací účet.</p>
+            
+            <div class="space-y-2 mb-4">
+                <button onclick="addRobux(20)" class="w-full flex justify-between items-center bg-slate-100 dark:bg-slate-700 hover:bg-amber-50 dark:hover:bg-slate-600 p-3 rounded-xl font-medium text-sm transition">
+                    <span>+20 Robuxů</span>
+                    <span class="text-amber-600 font-bold">Zdarma (Demo)</span>
+                </button>
+                <button onclick="addRobux(50)" class="w-full flex justify-between items-center bg-slate-100 dark:bg-slate-700 hover:bg-amber-50 dark:hover:bg-slate-600 p-3 rounded-xl font-medium text-sm transition">
+                    <span>+50 Robuxů</span>
+                    <span class="text-amber-600 font-bold">15 Kč</span>
+                </button>
+                <button onclick="addRobux(100)" class="w-full flex justify-between items-center bg-slate-100 dark:bg-slate-700 hover:bg-amber-50 dark:hover:bg-slate-600 p-3 rounded-xl font-medium text-sm transition">
+                    <span>+100 Robuxů</span>
+                    <span class="text-amber-600 font-bold">28 Kč</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Košík / Pokladna -->
+    <div id="cartModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('cartModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-cart-shopping text-red-600"></i> Váš Košík</h3>
+
+            <div id="cartItemsContainer" class="space-y-3 mb-4">
+                <!-- Položky košíku -->
+            </div>
+
+            <div class="border-t border-slate-200 dark:border-slate-700 pt-3 mb-4">
+                <div class="flex justify-between items-center font-bold text-lg">
+                    <span>Celkem k úhradě:</span>
+                    <span id="cartTotal" class="text-red-600">0 R$</span>
+                </div>
+            </div>
+
+            <button onclick="submitOrder()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-lg">
+                <i class="fa-brands fa-discord"></i> Odeslat objednávku na Discord
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript Logika -->
+    <script>
+        // WEBHOOK URL
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1566164738294022316/pRI9EvW_ZCmQmfm0lDhy46MuPmcyZnPZyRH_JLz5pa97bZJM_r3VNFXyRwVdMgggxLuw";
+
+        // Produkty (Všichni prodejci)
+        const products = [
+            // DAVID
+            {
+                id: "d1",
+                seller: "DAVID",
+                title: "Smíchovské Nádraží",
+                price: 30,
+                isFree: false,
+                desc: "PoloReálný vzhled. Pozdější aktualizace máte zdarma! Vytvořeno v Blockbench.",
+                options: [
+                    { id: "opt1", name: "Přejezd, koleje, budova, zastávky a ulice Strašnická", price: 10 }
+                ],
+                rules: "Model je bez povolení prodávající osoby jakkoliv upravovat, barvit, scriptovat aj.!"
+            },
+            {
+                id: "d2",
+                seller: "DAVID",
+                title: "Označník - Teplický (Velké zastávky)",
+                price: 5,
+                isFree: false,
+                desc: "Určeno pro velké zastávky.",
+                options: [
+                    { id: "opt2", name: "Doplňky / funkční okna, dveře, interiér", price: 3 }
+                ],
+                rules: "Model je bez povolení prodávající osoby jakkoliv upravovat, barvit, scriptovat aj.!"
+            },
+            {
+                id: "d3",
+                seller: "DAVID",
+                title: "Označník - Teplický (Malé zastávky)",
+                price: 5,
+                isFree: false,
+                desc: "Určeno pro malé zastávky.",
+                options: [
+                    { id: "opt3", name: "Doplňky / funkční okna, dveře, interiér", price: 3 }
+                ],
+                rules: "Model je bez povolení prodávající osoby jakkoliv upravovat, barvit, scriptovat aj.!"
+            },
+
+            // FALAX
+            {
+                id: "f1",
+                seller: "FALAX",
+                title: "Dashboard Setra S 51X / Mercedes Intouro",
+                price: 15,
+                isFree: false,
+                desc: "Tachometr, měřič RPM, Adblue, palivo. Pohyblivé ručičky.",
+                rules: "Úpravy povoleny, zachovat README. Leakování zakázáno!"
+            },
+            {
+                id: "f2",
+                seller: "FALAX",
+                title: "Custom dekorační SPZ",
+                price: 5,
+                isFree: false,
+                desc: "Realistický model. Text na přání v DMS.",
+                hasCustomText: true,
+                rules: "Úpravy povoleny, zachovat README."
+            },
+            {
+                id: "f3",
+                seller: "FALAX",
+                title: "Mercedes Travego R 22,5 poklice",
+                price: 4,
+                isFree: false,
+                desc: "Zkrášlující poklice pro autobusy.",
+                rules: "Úpravy povoleny, zachovat README."
+            },
+            {
+                id: "f4",
+                seller: "FALAX",
+                title: "Sada vlaječek (17 ks)",
+                price: 5,
+                isFree: false,
+                desc: "Oboustranné realistické vlaječky.",
+                rules: "Úpravy povoleny, zachovat README."
+            },
+            {
+                id: "f5",
+                seller: "FALAX",
+                title: "Solo vlaječky",
+                price: 1,
+                isFree: false,
+                desc: "Oboustranná vlaječka (1 R$ / ks nebo sada za 5 R$).",
+                rules: "Úpravy povoleny, zachovat README."
+            },
+            {
+                id: "f6",
+                seller: "FALAX",
+                title: "Zavěšující kostky",
+                price: 2,
+                isFree: false,
+                desc: "Klasická dekorace kabiny. Barva dle domluvy v DMS.",
+                hasColorPicker: true,
+                rules: "Úpravy povoleny, zachovat README."
+            },
+            {
+                id: "f7",
+                seller: "FALAX",
+                title: "Boční bordura - konfigurátor",
+                price: 5,
+                isFree: false,
+                desc: "Mnoho barevných kombinací.",
+                hasColorPicker: true,
+                rules: "Úpravy povoleny, zachovat README."
+            },
+            {
+                id: "f8",
+                seller: "FALAX",
+                title: "Přední bordura - konfigurátor",
+                price: 5,
+                isFree: false,
+                desc: "Mnoho barevných kombinací.",
+                hasColorPicker: true,
+                rules: "Úpravy povoleny, zachovat README."
+            },
+            {
+                id: "f9",
+                seller: "FALAX",
+                title: "LED páska - trikolora",
+                price: 0,
+                isFree: true,
+                desc: "ZDARMA do 10.11.2026! Poté za 1 R$.",
+                rules: "Úpravy povoleny, zachovat README."
+            },
+            {
+                id: "f10",
+                seller: "FALAX",
+                title: "Grace mate poppy",
+                price: 2,
+                isFree: false,
+                desc: "Vůně do kabiny. Barva dle DMS.",
+                hasColorPicker: true,
+                rules: "Úpravy povoleny, zachovat README."
+            },
+            {
+                id: "f11",
+                seller: "FALAX",
+                title: "Dekorace kabiny a exteriéru pack V 1.0",
+                price: 32,
+                isFree: false,
+                desc: "Obsahuje 9 detailních modelů z Blenderu.",
+                rules: "Úpravy povoleny, zachovat README."
+            },
+
+            // VTK
+            {
+                id: "v1",
+                seller: "VTK",
+                title: "Zastávka s přístřeškem",
+                price: 10,
+                isFree: false,
+                desc: "Označník, přístřešek, lavička, koš. Vytvořeno v Blockbench.",
+                rules: "Zákaz úprav bez souhlasu!"
+            },
+
+            // SMATLINA
+            {
+                id: "s1",
+                seller: "SMATLINA",
+                title: "Vyhořelý obchod",
+                price: 5,
+                isFree: false,
+                desc: "Statický model bez interiéru.",
+                options: [
+                    { id: "opt_s1", name: "Doplňky / okna, dveře, interiér", price: 3 }
+                ],
+                rules: "Zákaz úprav bez souhlasu!"
+            },
+            {
+                id: "s2",
+                seller: "SMATLINA",
+                title: "Autobusové Depo",
+                price: 4,
+                isFree: false,
+                desc: "Velké parkoviště pro autobusy.",
+                rules: "Zákaz úprav bez souhlasu!"
+            },
+            {
+                id: "s3",
+                seller: "SMATLINA",
+                title: "Synergy OCC model",
+                price: 0,
+                isFree: true,
+                desc: "Statický model kasy. Základní zelená barva.",
+                options: [
+                    { id: "opt_s3", name: "Změna barvy kasy", price: 6 }
+                ],
+                rules: "Zákaz úprav bez souhlasu!"
+            },
+            {
+                id: "s4",
+                seller: "SMATLINA",
+                title: "iPhone 17 Pro Max model",
+                price: 5,
+                isFree: false,
+                desc: "Bílá barva, dekorace.",
+                options: [
+                    { id: "opt_s4", name: "Přívěsek", price: 3 }
+                ],
+                rules: "Zákaz úprav bez souhlasu!"
+            },
+            {
+                id: "s5",
+                seller: "SMATLINA",
+                title: "Kopa pneumatik",
+                price: 2,
+                isFree: false,
+                desc: "Konfigurovatelná poloha a barva.",
+                hasColorPicker: true,
+                rules: "Zákaz úprav bez souhlasu!"
+            }
+        ];
+
+        // Stav aplikace
+        let currentUser = localStorage.getItem('ce_roblox_user') || null;
+        let userRobux = parseInt(localStorage.getItem('ce_roblox_robux')) || 50;
+        let cart = [];
+        let currentSellerFilter = 'ALL';
+        let selectedProduct = null;
+
+        // Inicializace
+        window.onload = function() {
+            updateUserUI();
+            renderProducts();
+        };
+
+        // Přepínání motivu (Dark/Light)
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        // Správa uživatele & Robuxů
+        function loginUser() {
+            const input = document.getElementById('robloxUsernameInput').value.trim();
+            if(input) {
+                currentUser = input;
+                localStorage.setItem('ce_roblox_user', currentUser);
+                localStorage.setItem('ce_roblox_robux', userRobux);
+                updateUserUI();
+                closeModal('loginModal');
+            }
+        }
+
+        function updateUserUI() {
+            if(currentUser) {
+                document.getElementById('userName').innerText = currentUser;
+            } else {
+                document.getElementById('userName').innerText = "Přihlásit";
+            }
+            document.getElementById('userRobux').innerText = userRobux + " R$";
+        }
+
+        function addRobux(amount) {
+            userRobux += amount;
+            localStorage.setItem('ce_roblox_robux', userRobux);
+            updateUserUI();
+            closeModal('topUpModal');
+            alert(`Úspěšně přičteno +${amount} R$! Námi zadaný stav: ${userRobux} R$`);
+        }
+
+        // Filtrování a zobrazení produktů
+        function setSellerFilter(seller) {
+            currentSellerFilter = seller;
+            document.querySelectorAll('.seller-btn').forEach(btn => {
+                if(btn.dataset.seller === seller) {
+                    btn.className = "seller-btn active bg-red-600 text-white px-4 py-2 rounded-2xl text-sm font-medium shrink-0 transition";
+                } else {
+                    btn.className = "seller-btn bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-2xl text-sm font-medium shrink-0 transition border border-slate-200 dark:border-slate-700";
+                }
+            });
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = products.filter(p => {
+                const matchSeller = currentSellerFilter === 'ALL' || p.seller === currentSellerFilter;
+                const matchSearch = p.title.toLowerCase().includes(search) || p.desc.toLowerCase().includes(search);
+                return matchSeller && matchSearch;
+            });
+            renderProductsGrid(filtered);
+        }
+
+        function renderProducts() {
+            renderProductsGrid(products);
+        }
+
+        function renderProductsGrid(items) {
+            const grid = document.getElementById('productsGrid');
+            document.getElementById('itemCount').innerText = `${items.length} produktů`;
+            grid.innerHTML = '';
+
+            items.forEach(p => {
+                const card = document.createElement('div');
+                card.className = "bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition flex flex-col justify-between";
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-red-600">${p.seller}</span>
+                            <span class="font-black text-lg ${p.isFree ? 'text-emerald-500' : 'text-slate-800 dark:text-white'}">
+                                ${p.isFree ? 'ZDARMA' : p.price + ' R$'}
+                            </span>
+                        </div>
+                        <h4 class="font-bold text-base mb-1">${p.title}</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">${p.desc}</p>
+                    </div>
+
+                    <button onclick="openProductModal('${p.id}')" class="w-full bg-slate-100 dark:bg-slate-700 hover:bg-red-600 hover:text-white text-slate-800 dark:text-slate-200 font-bold py-2.5 rounded-2xl text-sm transition">
+                        Koupit / Konfigurovat
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Modal Produkty
+        function openProductModal(id) {
+            selectedProduct = products.find(p => p.id === id);
+            if(!selectedProduct) return;
+
+            const content = document.getElementById('modalProductContent');
+            let optionsHTML = '';
+
+            if(selectedProduct.options) {
+                optionsHTML += `<div class="mb-4"><label class="block text-xs font-bold uppercase text-slate-400 mb-2">Volitelné příplatky:</label>`;
+                selectedProduct.options.forEach(o => {
+                    optionsHTML += `
+                        <label class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl mb-2 text-sm cursor-pointer">
+                            <input type="checkbox" data-price="${o.price}" data-name="${o.name}" class="product-option rounded text-red-600 focus:ring-red-500">
+                            <span class="flex-1">${o.name}</span>
+                            <span class="font-bold">+${o.price} R$</span>
+                        </label>
+                    `;
+                });
+                optionsHTML += `</div>`;
+            }
+
+            if(selectedProduct.hasColorPicker) {
+                optionsHTML += `
+                    <div class="mb-4">
+                        <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Vybrat barvu:</label>
+                        <input type="color" id="colorInput" value="#e52229" class="w-full h-10 rounded-xl cursor-pointer">
+                    </div>
+                `;
+            }
+
+            if(selectedProduct.hasCustomText) {
+                optionsHTML += `
+                    <div class="mb-4">
+                        <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Vlastní text na SPZ:</label>
+                        <input type="text" id="customTextInput" placeholder="Např. SAMOHYL" class="w-full px-4 py-2 bg-slate-100 dark:bg-slate-700 rounded-xl text-sm">
+                    </div>
+                `;
+            }
+
+            content.innerHTML = `
+                <span class="text-xs font-bold text-red-600 uppercase tracking-wider">${selectedProduct.seller}</span>
+                <h3 class="text-xl font-bold mb-2">${selectedProduct.title}</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">${selectedProduct.desc}</p>
+                
+                ${optionsHTML}
+
+                <div class="bg-amber-50 dark:bg-slate-700/30 p-3 rounded-xl text-xs text-amber-800 dark:text-amber-300 mb-4 border border-amber-200 dark:border-amber-900/50">
+                    <i class="fa-solid fa-triangle-exclamation"></i> ${selectedProduct.rules}
+                </div>
+
+                <button onclick="addToCart()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition shadow-md">
+                    Vložit do košíku
+                </button>
+            `;
+
+            document.getElementById('productModal').classList.remove('hidden');
+        }
+
+        function addToCart() {
+            let extraPrice = 0;
+            let extraDetails = [];
+
+            // Načtení voleb
+            document.querySelectorAll('.product-option:checked').forEach(opt => {
+                extraPrice += parseInt(opt.dataset.price);
+                extraDetails.push(opt.dataset.name);
+            });
+
+            const colorInput = document.getElementById('colorInput');
+            if(colorInput) extraDetails.push(`Barva: ${colorInput.value}`);
+
+            const textInput = document.getElementById('customTextInput');
+            if(textInput && textInput.value) extraDetails.push(`Text: ${textInput.value}`);
+
+            cart.push({
+                product: selectedProduct,
+                finalPrice: selectedProduct.price + extraPrice,
+                details: extraDetails.join(', ')
+            });
+
+            updateCartBadge();
+            closeModal('productModal');
+            alert('Produkt vložen do košíku!');
+        }
+
+        function updateCartBadge() {
+            const badge = document.getElementById('cartBadge');
+            if(cart.length > 0) {
+                badge.innerText = cart.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function openCartModal() {
+            const container = document.getElementById('cartItemsContainer');
+            container.innerHTML = '';
+            let total = 0;
+
+            if(cart.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-400 text-sm py-4">Košík je prázdný.</p>`;
+            } else {
+                cart.forEach((item, index) => {
+                    total += item.finalPrice;
+                    container.innerHTML += `
+                        <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl">
+                            <div>
+                                <h5 class="font-bold text-sm">${item.product.title}</h5>
+                                <p class="text-xs text-slate-400">${item.details || 'Základní verze'}</p>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <span class="font-bold text-sm">${item.finalPrice} R$</span>
+                                <button onclick="removeFromCart(${index})" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('cartTotal').innerText = `${total} R$`;
+            document.getElementById('cartModal').classList.remove('hidden');
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartBadge();
+            openCartModal();
+        }
+
+        // Odeslání Objednávky na Discord Webhook
+        async function submitOrder() {
+            if(!currentUser) {
+                alert('Před odesláním se musíte přihlásit Roblox jménem!');
+                openLoginModal();
+                return;
+            }
+
+            if(cart.length === 0) {
+                alert('Košík je prázdný!');
+                return;
+            }
+
+            const total = cart.reduce((sum, item) => sum + item.finalPrice, 0);
+
+            if(userRobux < total) {
+                alert(`Nemáte dostatek Robuxů! Chybí vám ${total - userRobux} R$.`);
+                openTopUpModal();
+                return;
+            }
+
+            // Odečtení Robuxů
+            userRobux -= total;
+            localStorage.setItem('ce_roblox_robux', userRobux);
+            updateUserUI();
+
+            // Sestavení zprávy na Discord
+            let orderFields = cart.map(item => ({
+                name: `${item.product.title} (${item.product.seller})`,
+                value: `Cena: **${item.finalPrice} R$**\nDetaily: ${item.details || 'Bez úprav'}`,
+                inline: false
+            }));
+
+            const payload = {
+                username: "CentralEurope Shop Bot",
+                avatar_url: "https://upload.wikimedia.org/wikipedia/commons/3/3a/Roblox_player_icon.png",
+                embeds: [{
+                    title: "🛒 Nová Objednávka",
+                    color: 15016233, // Červená barva
+                    fields: [
+                        { name: "Kupující (Roblox)", value: currentUser, inline: true },
+                        { name: "Celková Cena", value: `${total} R$`, inline: true },
+                        ...orderFields
+                    ],
+                    footer: { text: "CentralEurope Roblox Store" },
+                    timestamp: new Date().toISOString()
+                }]
+            };
+
+            try {
+                const response = await fetch(DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if(response.ok) {
+                    alert('Objednávka byla úspěšně odeslána na Discord!');
+                    cart = [];
+                    updateCartBadge();
+                    closeModal('cartModal');
+                } else {
+                    alert('Chyba při odesílání na Discord. Zkontrolujte připojení.');
+                }
+            } catch(e) {
+                console.error(e);
+                alert('Chyba při odesílání objednávky.');
+            }
+        }
+
+        // Pomocné funkce pro modaly
+        function openLoginModal() { document.getElementById('loginModal').classList.remove('hidden'); }
+        function openTopUpModal() { document.getElementById('topUpModal').classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    </script>
+</body>
+</html>
